@@ -8,7 +8,6 @@ require("./db");
 // Handles http requests (express is node js framework)
 // https://www.npmjs.com/package/express
 const express = require("express");
-const router = express.Router();
 
 // Handles the handlebars
 // https://www.npmjs.com/package/hbs
@@ -16,45 +15,52 @@ const hbs = require("hbs");
 
 const app = express();
 
+const mongoose = require("mongoose");
+const MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/movies";
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const Movie = require("./models/Movie.model");
+
 // ℹ️ This function is getting exported from the config folder. It runs most middlewares
 require("./config")(app);
 
 // default value for title local
-const projectName = "lab-express-cinema";
+const projectName = "Cinema Ironhack";
 const capitalized = (string) =>
   string[0].toUpperCase() + string.slice(1).toLowerCase();
 
-app.locals.title = `${capitalized(projectName)}- Generated with Ironlauncher`;
+app.locals.title = `${projectName}`;
 
 // 👇 Start handling routes here
-const Movie = require("./models/Movie.model");
-const index = require("./routes/index");
-app.use("/", index);
-
-router.get("/movies", async (req, res, next) => {
-  try {
-    const movies = await Movie.find();
-    res.render("movies", { movies });
-  } catch (error) {
-    console.error("Error fetching movies:", error);
-    res.status(500).send("Internal Server Error");
-  }
+app.get("/", (req, res) => {
+  res.render("index");
 });
 
-router.get('/movies/:id', async (req, res, next) => {
-    try {
-      const movie = await Movie.findById(req.params.id);
-      if (!movie) {
-        return res.status(404).send('Movie not found');
-      }
-      res.render('movie', { movie });
-    } catch (error) {
-      console.error('Error fetching movie:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
+app.get("/movies", (req, res, next) => {
+  Movie.find()
+    .then((result) => {
+      res.render("movies", { movies: result });
+    })
+    .catch(() => console.log("Error"));
+});
 
-module.exports = router;
+app.get("/movies/:id", (req, res, next) => {
+  const movieId = req.params.id;
+  Movie.findById(movieId)
+    .then((movie) => {
+      res.render("movie", { movie: movie });
+    })
+    .catch((error) => {
+      console.error("Error fetching movie:", error);
+      res.redirect("/movies");
+    });
+});
+
+const index = require("./routes/index");
+app.use("/", index);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

@@ -1,23 +1,22 @@
-<html>
-  <head>
-    <title>{{movie.title}}</title>
-  </head>
-  <body>
-    <h1>{{movie.title}}</h1>
-    <img src="{{movie.image}}" alt="{{movie.title}}">
-    <h2>Director: {{movie.director}}</h2>
-    <h3>Stars:</h3>
+<head>
+  <title>Movies App - All Movies</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css" />
+</head>
+
+<body>
+  <div class="contenedor">
+    <div class="up">
+      <h1>Ironhack Cinema</h1>
+      <p>Click on the movie to check the showtimes!</p>
+    </div>
     <ul>
-      {{#each movie.stars}}
-      <li>{{this}}</li>
+      {{#each movies}}
+        <li>
+          <img src="{{image}}" alt="{{title}}" />
+          <h2>{{title}}</h2>
+          <a href="/movies/{{_id}}">See more</a>
+        </li>
       {{/each}}
     </ul>
-    <p>{{movie.description}}</p>
-    <h3>Showtimes:</h3>
-    <ul>
-      {{#each movie.showtimes}}
-      <li>{{this}}</li>
-      {{/each}}
-    </ul>
-  </body>
-</html>
+  </div>
+</body>

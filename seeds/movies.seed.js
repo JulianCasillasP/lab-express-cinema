@@ -1,4 +1,13 @@
+const mongoose = require('mongoose');
 const Movie = require('../models/Movie.model');
+
+
+mongoose.connect('mongodb://localhost:27017/movies', { 
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+  .then(() => {
+    console.log('Connected to the database.');
 
 const movies = [
     {
@@ -83,15 +92,16 @@ const movies = [
     }
   ];
 
-  async function seedDatabase() {
-    try {
-      await Movie.insertMany(movies);
-      console.log('Database seeded successfully');
-    } catch (error) {
-      console.error('Error seeding database:', error);
-    }
-  }
-  
+  return Movie.insertMany(movies);
+})
+.then(() => {
+  console.log('Database seeded successfully.');
+  mongoose.disconnect();
+})
+.catch(error => {
+  console.error('Error seeding the database:', error);
+  mongoose.disconnect();
+});
 
-  seedDatabase();
+module.exports = movies;
 
